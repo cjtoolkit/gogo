@@ -75,12 +75,24 @@ func setupSdk(cmdName, homeDir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cmdRun("go", "get", "golang.org/dl/" + cmdName)
+	cmdGoGet(cmdName)
 	cmdRun(cmdName, "download")
 }
 
 func cmdRun(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func cmdGoGet(cmdName string) {
+	cmd := exec.Command("go", "get", "golang.org/dl/" + cmdName)
+	cmd.Env = append(os.Environ(), "GOOS="+runtime.GOOS, "GOARCH="+runtime.GOARCH)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
